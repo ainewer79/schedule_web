@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비비드 파스텔 투두리스트 | To-Do & History</title>
+  <!-- Google Fonts & Pretendard -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-decorations">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <main class="app-card">
+    <!-- Top View Switcher (오늘 할 일 vs 날짜별 기록) -->
+    <nav class="view-switcher" aria-label="화면 전환">
+      <button type="button" class="view-btn active" id="viewTodayBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+        오늘 할 일
+      </button>
+      <button type="button" class="view-btn" id="viewHistoryBtn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        날짜별 기록 (최근 7일)
+        <span class="history-pill" id="historyCountPill">0일</span>
+      </button>
+    </nav>
+
+    <!-- ================= VIEW 1: 오늘 할 일 ================= -->
+    <section class="view-content active" id="todayView">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-top">
+          <span class="badge badge-today">TODAY</span>
+          <span class="date-text" id="currentDate">2026. 00. 00</span>
+        </div>
+        <h1 class="app-title">할 일 목록 <span class="sparkle">⚡</span></h1>
+        <p class="app-subtitle">오늘의 목표를 시원하게 체크해보세요!</p>
+
+        <!-- Overdue Alert Banner (미완료 이월 항목이 있을 때 표시) -->
+        <div class="overdue-banner hidden" id="overdueBanner">
+          <div class="banner-icon">⚠️</div>
+          <div class="banner-text">
+            <strong>미완료 이월 항목 <span id="overdueCount">0</span>개</strong>
+            <span>어제 완료하지 못한 할 일이 오늘 목록으로 이어졌어요!</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-info">
+            <span class="progress-label">오늘 달성률</span>
+            <span class="progress-value" id="progressText">0% (0/0)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Input Box -->
+      <form class="todo-form" id="todoForm">
+        <input 
+          type="text" 
+          id="todoInput" 
+          class="todo-input" 
+          placeholder="새로운 할 일을 입력해보세요..." 
+          autocomplete="off"
+          maxlength="60"
+        >
+        <button type="submit" class="btn-add" id="addBtn" aria-label="할 일 추가">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>추가</span>
+        </button>
+      </form>
+
+      <!-- Filter Tabs -->
+      <nav class="filter-tabs" aria-label="필터">
+        <button type="button" class="tab-btn active" data-filter="all">전체 <span class="count-badge" id="countAll">0</span></button>
+        <button type="button" class="tab-btn" data-filter="active">진행 중 <span class="count-badge" id="countActive">0</span></button>
+        <button type="button" class="tab-btn" data-filter="completed">완료 <span class="count-badge" id="countCompleted">0</span></button>
+      </nav>
+
+      <!-- Todo List Items -->
+      <div class="todo-list-container">
+        <ul class="todo-list" id="todoList">
+          <!-- Javascript dynamically inserts items here -->
+        </ul>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🌈</div>
+          <p class="empty-title">오늘의 할 일이 비어있어요</p>
+          <p class="empty-desc">새로운 계획을 등록하고 보람찬 하루를 시작해보세요!</p>
+        </div>
+      </div>
+
+      <!-- Footer Stats & Actions -->
+      <footer class="app-footer">
+        <span class="items-left" id="itemsLeft">남은 할 일: 0개</span>
+        <div class="footer-actions">
+          <button type="button" class="btn-test-sim" id="testDayRolloverBtn" title="자정이 지나 다음 날이 된 상황을 바로 시뮬레이션해봅니다">
+            ⚡ 하루 넘기기 테스트
+          </button>
+          <button type="button" class="btn-clear" id="clearCompletedBtn">완료 정리</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ================= VIEW 2: 날짜별 기록 (최근 7일) ================= -->
+    <section class="view-content" id="historyView">
+      <header class="history-header">
+        <div class="header-top">
+          <span class="badge badge-history">HISTORY LOGS</span>
+          <span class="retention-info">최근 7일 자동 보관 (이후 자동 삭제)</span>
+        </div>
+        <h2 class="history-title">날짜별 기록 보관소 📅</h2>
+        <p class="history-subtitle">지난 7일간의 기록과 달성 여부를 확인하세요.</p>
+      </header>
+
+      <!-- History List -->
+      <div class="history-container" id="historyContainer">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- History Empty State -->
+      <div class="empty-state" id="historyEmptyState">
+        <div class="empty-icon">📂</div>
+        <p class="empty-title">아직 보관된 과거 기록이 없습니다</p>
+        <p class="empty-desc">하루가 지나면 오늘의 목록이 날짜별로 이곳에 자동 저장됩니다.</p>
+      </div>
+
+      <footer class="app-footer">
+        <span class="history-auto-clean-notice">ℹ️ 7일 이상 지난 기록은 브라우저에서 자동 삭제됩니다.</span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
